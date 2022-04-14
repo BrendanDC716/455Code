@@ -16,8 +16,26 @@ x  = (a+dx):dx:(b-dx); % vecotr containing all interior mesh grids, size(x) = nx
 n1 = nx - 1;
 n2 = nbp*njp;
 
-matrix_B = zeros(n1,n2);
-matrix_C = zeros(n2,n1);
+
+
+%%%%Construct A%%%
+
+
+c1A=-(5/2); % main diagonal of A
+c2A=4/3; % offset by 1 diagonal of A
+c3A=-(1/12); % offset by 2 diagonal of A
+c4A=1/(dx); % coefficient for entire A
+% populate matrix A diagonals
+A=diag(c1A*ones(1,nx-1)) + diag(c2A*ones(1,nx-2),1) + diag(c3A*ones(1,nx-3),2) + diag(c2A*ones(1,nx-2),-1) + diag(c3A*ones(1,nx-3),-2);
+% apply antisymmetric property
+A(1,1)=c1A-c3A; 
+A(nx-1,nx-1)=c1A-c3A;
+% multiply coefficient of A
+A=c4A*A;
+
+%%placeholder for dimensions of matrices
+matrix_B = zeros(n1,n2); %%%HARD
+matrix_C = zeros(n2,n1); %%%HARD
 U = zeros(n1,1);
 Q = zeros(n2,1);
 
