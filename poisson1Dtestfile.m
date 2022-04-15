@@ -17,8 +17,9 @@ n1 = nx - 1;
 n2 = nbp*njp;
 
 
-
+%%%%%%%%%%%%%%%%%%
 %%%%Construct A%%%
+%%%%%%%%%%%%%%%%%%%
 
 
 c1A=-(5/2); % main diagonal of A
@@ -70,6 +71,7 @@ hl=abs(xl-xlp); %h for left fictitious values
 xl1=[-hl,dx-hl,2*(dx)-hl,3*(dx)-hl,4*(dx)-hl]; %first fict. value on left (ui)
 
 uilorig=weights(0,xl1,4);
+
 
 %dummyuilorig=[uilorig(1,1);uilorig(2,1);uilorig(3,1);uilorig(4,1);uilorig(5,1)];
 
@@ -158,7 +160,6 @@ end
     
     UIL1hat(1,5)=1/uilorig(1,1); %%%add 1/Wi
 
-%%%check corrected taylor expansio 
 
 
 UIL2hat=zeros(1,5);
@@ -196,17 +197,47 @@ end
     UIR2hat(1,5)=1/uir2orig(1,1); %%%add 1/Wi-1
     
     
-    %%deriv jumps ck
     
-    %%%%k=0:4
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%attempt to construct C%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+  
     
-    for k=1:4
+    
+    %%construct left[xi-1,xi,xi+1,xi+2,xi+3] 5by5 W  Interface at Xl
+   WXL=[-dx-hl,-hl,dx-hl,2*(dx)-hl,3*(dx)-hl];
+   WXL5by5= weights(0,WXL,4); 
+   
+   
+
+   %%construct right[xi-3,xi-2,xi-1,xi,xi+1] interface at Xr
+   WXR=[-2*(dx)-h2,-(dx)-h2,-h2,dx-h2,2*dx-h2];
+   WXR5by5 = weights(0,WXR,4);
+    
+    
+   %%Construct each sub matrix for Xl and Xr in matrix C
+    for k=1:5
         
-       C1(:,k) = -(uilorig(:,1)*UIL2hat(k)+uilorig(:,2)*UIL1hat(k)+uilorig(:,3)+uilorig(:,4)+uilorig(:,5));
-       C2(:,k) = -(uirorig(:,1)*UIR2hat(k)+uirorig(:,2)*UIR1hat(k)+uirorig(:,3)+uirorig(:,4)+uirorig(:,5));
+       C1(:,k) = -(WXL5by5(:,1)*UIL2hat(k)+WXL5by5(:,2)*UIL1hat(k)+WXL5by5(:,3)+WXL5by5(:,4));
+       C2(:,k) = -(WXR5by5(:,1)*UIR2hat(k)+WXR5by5(:,2)*UIR1hat(k)+WXR5by5(:,3)+WXR5by5(:,4));
     end
+    
+   
+    
+    
+    
+    %%%Construct Phi
+    phi=zeros(10,1);
+   for i=1:5
+       phi(i,1)=WXL5by5(i,5)*xl;
+       phi(i+5,1)=WXR5by5(i,5)*xr;
+     
+   end
+ 
+   
+   
 
       
 
