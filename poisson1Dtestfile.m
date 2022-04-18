@@ -112,39 +112,48 @@ ui2l(i,n)=ui2ldummy(i,n+1);
 
     end
 end
-%%for loop to calculate ui-1l weights
+
 h2=abs(xr-xrp); %h for right ficititios values
-xr1=[-3*dx-h2,-2*(dx)-h2,-(dx)-h2,-h2,dx-h2];
-uirorig=weights(0,xr1,4);
+%%%%%%%%
+
+
+%xl1=[-hl,dx-hl,2*(dx)-hl,3*(dx)-hl,4*(dx)-hl]
+
+%%z=dx-h
+
+%%[-3dx,-2dx,-dx,0,dx]
+xr1=[-3*dx,-2*(dx),-(dx),0,dx];
+zstar=h2;
+uirorig=weights(zstar,xr1,4);
 %%%loop to solve for wbars
 for n=1:5
     for i=1:5
-    uirdummy(i,n)=-uirorig(i,n)/uirorig(i,1);
+    uirdummy(i,n)=-uirorig(i,n)/uirorig(i,5);
     
     end
 end
 
 for n=1:4
     for i=1:5
-uir(i,n)=uirdummy(i,n+1);
+uir(i,n)=uirdummy(i,n);
 
     end
 end
 
 %%second fict value for right side
-xr2=[-3*dx-h2,-2*(dx)-h2,-(dx)-h2,-h2,2*dx-h2];
-uir2orig=weights(0,xr2,4);
+xr2=[-3*dx,-2*(dx),-(dx),0,2*dx];
+uir2orig=weights(zstar,xr2,4);
 %%%loop to solve for wbars
 for n=1:5
     for i=1:5
-    uir2dummy(i,n)=-uir2orig(i,n)/uir2orig(i,1);
+    uir2dummy(i,n)=-uir2orig(i,n)/uir2orig(i,5);
     
     end
 end
 
 for n=1:4
     for i=1:5
-uir2(i,n)=uir2dummy(i,n+1);
+uir2(i,n)=uir2dummy(i,n);
 
     end
 end
@@ -182,7 +191,7 @@ for i=1:4
     UIR1hat(1,i)=uir(1,i);
 end
     
-    UIR1hat(1,5)=1/uirorig(1,1); %%%add 1/Wi
+    UIR1hat(1,5)=1/uirorig(1,5); %%%add 1/Wi
     
     %%right interface ui
 UIR2hat=zeros(1,5);
@@ -194,7 +203,7 @@ for i=1:4
     UIR2hat(1,i)=uir2(1,i);
 end
     
-    UIR2hat(1,5)=1/uir2orig(1,1); %%%add 1/Wi-1
+    UIR2hat(1,5)=1/uir2orig(1,5); %%%add 1/Wi-1
     
     
     
@@ -207,24 +216,29 @@ end
     
     
     %%construct left[xi-1,xi,xi+1,xi+2,xi+3] 5by5 W  Interface at Xl
-   WXL=[-dx-hl,-hl,dx-hl,2*(dx)-hl,3*(dx)-hl];
-   WXL5by5= weights(0,WXL,4); 
+   WXL=[-dx,0,dx,2*(dx),3*(dx)];
+   WXL5by5= weights(hl,WXL,4); 
    
    
 
    %%construct right[xi-3,xi-2,xi-1,xi,xi+1] interface at Xr
-   WXR=[-2*(dx)-h2,-(dx)-h2,-h2,dx-h2,2*dx-h2];
-   WXR5by5 = weights(0,WXR,4);
+   WXR=[-2*(dx),-(dx),0,dx,2*dx];
+   WXR5by5 = weights(h2,WXR,4);
     
     
    %%Construct each sub matrix for Xl and Xr in matrix C
     for k=1:5
         
-       C1(:,k) = -(WXL5by5(:,1)*UIL2hat(k)+WXL5by5(:,2)*UIL1hat(k)+WXL5by5(:,3)+WXL5by5(:,4));
-       C2(:,k) = -(WXR5by5(:,1)*UIR2hat(k)+WXR5by5(:,2)*UIR1hat(k)+WXR5by5(:,3)+WXR5by5(:,4));
+       C1(:,k) = (WXL5by5(:,1)*UIL2hat(k)+WXL5by5(:,2)*UIL1hat(k)+WXL5by5(:,3));
+       C2(:,k) = (WXR5by5(:,1)*UIR2hat(k)+WXR5by5(:,2)*UIR1hat(k)+WXR5by5(:,3));
     end
     
-   
+   for j=1:3
+       C1(:,j) = (C1(:,j)+WXL5by5(:,j));
+        C2(:,j) = (C2(:,j)+WXR5by5(:,j));
+        
+   end
+    
     
     
     
